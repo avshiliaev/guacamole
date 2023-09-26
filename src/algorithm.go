@@ -2,9 +2,8 @@ package src
 
 import "sort"
 
+// IntervalList defines a type for a list of intervals
 type IntervalList []*Interval
-
-// MergeIntervals merges overlapping intervals in the list and returns the result.
 
 // MergeIntervals merges overlapping intervals in the list and returns the result.
 func (l IntervalList) MergeIntervals() (result IntervalList) {
@@ -14,31 +13,35 @@ func (l IntervalList) MergeIntervals() (result IntervalList) {
 		return compareIntervals(l[i], l[j])
 	})
 
-	// Use a stack to merge overlapping intervals.
-	stack := make(IntervalList, 0, len(l))
-
-	for _, interval := range l {
-		current := interval
-		// If the stack is empty or the top interval in the stack does not overlap with the current interval,
-		// push the current interval onto the stack.
-		if len(stack) == 0 || stack[len(stack)-1].end < current.start {
-			stack = append(stack, current)
-			// If the top interval in the stack overlaps with the current interval, merge the two intervals by
-			// updating the end value of the top interval to the end value of the current interval.
-		} else if stack[len(stack)-1].end < current.end {
-			stack[len(stack)-1].end = current.end
+	// Initialize the current interval to the first interval in the sorted list.
+	current := l[0]
+	// Iterate over the remaining intervals in the sorted list.
+	for i := 1; i < len(l); i++ {
+		// If the current interval overlaps with the next interval.
+		if current.end >= l[i].start {
+			// Merge the two intervals by updating the end value of the current interval.
+			current.end = max(current.end, l[i].end)
+		} else {
+			// Otherwise, add the current interval to the result list
+			// and update the current interval to the next interval.
+			result = append(result, current)
+			current = l[i]
 		}
 	}
-
-	// Pop stack into the result list.
-	for len(stack) > 0 {
-		result = append(result, stack[0])
-		stack = stack[1:]
-	}
+	// Add the final current interval to the result list.
+	result = append(result, current)
 	return
 }
 
 // compareIntervals compares two intervals by their start values.
 func compareIntervals(a, b *Interval) bool {
 	return a.start < b.start
+}
+
+// max returns the maximum of two integers
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
