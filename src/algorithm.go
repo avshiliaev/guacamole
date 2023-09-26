@@ -1,50 +1,44 @@
 package src
 
+import "sort"
+
 type IntervalList []*Interval
 
 // MergeIntervals merges overlapping intervals in the list and returns the result.
+
+// MergeIntervals merges overlapping intervals in the list and returns the result.
 func (l IntervalList) MergeIntervals() (result IntervalList) {
-	n := len(l)
-	for i := 0; i < n; i++ {
-		merged := false
-		for j := 0; j < len(result); j++ {
-			if ok, interval := merge(l[i], result[j]); ok {
-				result[j] = interval
-				merged = true
-				break
-			}
+
+	// Sort the intervals by their start values.
+	sort.Slice(l, func(i, j int) bool {
+		return compareIntervals(l[i], l[j])
+	})
+
+	// Use a stack to merge overlapping intervals.
+	stack := make(IntervalList, 0, len(l))
+
+	for _, interval := range l {
+		current := interval
+		// If the stack is empty or the top interval in the stack does not overlap with the current interval,
+		// push the current interval onto the stack.
+		if len(stack) == 0 || stack[len(stack)-1].end < current.start {
+			stack = append(stack, current)
+			// If the top interval in the stack overlaps with the current interval, merge the two intervals by
+			// updating the end value of the top interval to the end value of the current interval.
+		} else if stack[len(stack)-1].end < current.end {
+			stack[len(stack)-1].end = current.end
 		}
-		if !merged {
-			result = append(result, l[i])
-		}
+	}
+
+	// Pop stack into the result list.
+	for len(stack) > 0 {
+		result = append(result, stack[0])
+		stack = stack[1:]
 	}
 	return
 }
 
-// merge merges two intervals if they overlap and returns true and the merged interval.
-// Otherwise, it returns false and nil.
-func merge(a, b *Interval) (bool, *Interval) {
-	if a.end < b.start {
-		return false, nil
-	}
-	if a.start > b.end {
-		return false, nil
-	}
-	return true, NewInterval(min(a.start, b.start), max(a.end, b.end))
-}
-
-// min returns the minimum of two integers.
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
-}
-
-// max returns the maximum of two integers.
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+// compareIntervals compares two intervals by their start values.
+func compareIntervals(a, b *Interval) bool {
+	return a.start < b.start
 }
