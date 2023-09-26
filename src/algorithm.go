@@ -13,29 +13,35 @@ func (l IntervalList) MergeIntervals() (result IntervalList) {
 		return compareIntervals(l[i], l[j])
 	})
 
-	// Initialize the current interval to the first interval in the sorted list.
-	current := l[0]
-	// Iterate over the remaining intervals in the sorted list.
+	// Initialize the index and iterate through the sorted list.
+	ind := 0
 	for i := 1; i < len(l); i++ {
-		// If the current interval overlaps with the next interval.
-		if current.end >= l[i].start {
-			// Merge the two intervals by updating the end value of the current interval.
-			current.end = max(current.end, l[i].end)
+		// If the current interval overlaps with the previous interval, merge them.
+		if l[ind].end >= l[i].start {
+			l[ind].end = max(l[ind].end, l[i].end)
+			l[ind].start = min(l[ind].start, l[i].start)
 		} else {
 			// Otherwise, add the current interval to the result list
-			// and update the current interval to the next interval.
-			result = append(result, current)
-			current = l[i]
+			// and update the index.
+			ind++
+			l[ind] = l[i]
 		}
 	}
-	// Add the final current interval to the result list.
-	result = append(result, current)
-	return
+	// Return the merged IntervalList.
+	return l[:ind+1]
 }
 
 // compareIntervals compares two intervals by their start values.
 func compareIntervals(a, b *Interval) bool {
 	return a.start < b.start
+}
+
+// min returns the minimum of two integers
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 // max returns the maximum of two integers
