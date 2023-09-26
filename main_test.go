@@ -13,7 +13,7 @@ func TestMergeIntervalsFour(t *testing.T) {
 		output src.IntervalList
 	}{
 		{
-			name: "Test Case 1",
+			name: "Partially Overlapping",
 			input: src.IntervalList{
 				src.NewInterval(25, 30),
 				src.NewInterval(2, 19),
@@ -26,27 +26,30 @@ func TestMergeIntervalsFour(t *testing.T) {
 			},
 		},
 		{
-			name: "Test Case 2",
+			name: "Non-Overlapping",
 			input: src.IntervalList{
 				src.NewInterval(1, 3),
-				src.NewInterval(2, 6),
+				src.NewInterval(4, 6),
 				src.NewInterval(8, 10),
 				src.NewInterval(15, 18),
 			},
 			output: src.IntervalList{
-				src.NewInterval(1, 6),
+				src.NewInterval(1, 3),
+				src.NewInterval(4, 6),
 				src.NewInterval(8, 10),
 				src.NewInterval(15, 18),
 			},
 		},
 		{
-			name: "Test Case 3",
+			name: "Completely Overlapping",
 			input: src.IntervalList{
-				src.NewInterval(1, 4),
-				src.NewInterval(4, 5),
+				src.NewInterval(1, 10),
+				src.NewInterval(4, 6),
+				src.NewInterval(3, 7),
+				src.NewInterval(8, 9),
 			},
 			output: src.IntervalList{
-				src.NewInterval(1, 5),
+				src.NewInterval(1, 10),
 			},
 		},
 	}
